@@ -94,7 +94,7 @@ function GenerateQuizPage() {
             <form onSubmit={handleSubmitGenerateQuiz} id="formm">
                 <input type="submit"/>
             </form>
-            <textarea onChange={(e) => setText(e.target.value)} form="formm" cols="100" rows="40"></textarea>
+            <textarea onChange={(e) => setText(e.target.value)} form="formm" cols="100" rows="30"></textarea>
 
             <br />
             <br />
