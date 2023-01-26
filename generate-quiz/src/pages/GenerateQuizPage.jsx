@@ -14,8 +14,8 @@ function GenerateQuizPage() {
   const [errorMessages, setErrorMessages] = useState({});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [text, setText] = useState('')
-  const [result, setResult] = useState('')
-  const [isSuccess, setIsSuccess] = useState(false)
+  const [correctAlternatives, setCorrectAlternatives] = useState('')
+  const [isSuccess, setIsSuccess] = useState(null)
 
   // User Login info
   const database = [
@@ -77,12 +77,29 @@ function GenerateQuizPage() {
   );
   const handleSubmitGenerateQuiz = (event) => {
     event.preventDefault();
+    let correctAlts = getCorrectAlternativesInDict(correctAlternatives)
     api.post(
-        '/generate_quiz', {text: text}, {headers: {'Authorization': 'Bearer ' + sessionStorage.token}}
+        '/generate_quiz',
+         {text: text, correct_alternatives: correctAlts},
+         {headers: {'Authorization': 'Bearer ' + sessionStorage.token}}
     ).then((response)=> {
         setIsSuccess(true)
         navigator.clipboard.writeText(response.data.result)})
     .catch(()=> setIsSuccess(false))
+  }
+  function getCorrectAlternativesInDict(){
+    let correct_alt = correctAlternatives.replaceAll(' ', '').toLowerCase().split('/')
+    console.log(correct_alt)
+    let result = {}
+    for(let c_alt of correct_alt){
+      if(c_alt.length < 2) {
+        continue
+      }
+      let question_number = c_alt.slice(0, -1)
+      let correct_letter = c_alt.slice(-1)
+      result[question_number] = correct_letter
+    }
+    return result
   }
   return (
     <div className="app">
@@ -91,14 +108,17 @@ function GenerateQuizPage() {
         
         
         <div>
+
+            <textarea onChange={(e) => setText(e.target.value)} form="formm" cols="100" rows="30"></textarea>
             <form onSubmit={handleSubmitGenerateQuiz} id="formm">
+                <input type="text" onChange={(e) => setCorrectAlternatives(e.target.value)} size="40"/>
+                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <input type="submit"/>
             </form>
-            <textarea onChange={(e) => setText(e.target.value)} form="formm" cols="100" rows="30"></textarea>
+            <br />
+            <br />
 
-            <br />
-            <br />
-            {isSuccess ? 'A ultima requisicao gerou um quiz. foi copiado para a zona de transferencia!': 'A ultima requisicao falhou :('}
+            {isSuccess ? 'SUCESSO!!!!!!. os dados foram copiados para a área de transferência!': isSuccess === false ? 'FALHOUU :(': ''}
         </div>
 
         }
